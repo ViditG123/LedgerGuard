@@ -50,3 +50,9 @@ npm run dev
 Open http://localhost:5173. The frontend can create synthetic transactions, show balances, and compare expected versus actual balances.
 
 Run the Playwright UI smoke test with `cd frontend && npx playwright install chromium && npm test`. The test checks that the dashboard renders; it does **not** yet verify a complete financial transaction workflow. A Python reconciliation report and SQL aggregation query are available in `analytics/`.
+
+## Node.js / PostgreSQL backend
+
+An alternative Express + PostgreSQL service is now available under [node-api](node-api/README.md). It provides transaction creation, history, balance lookup and reconciliation with parameterized SQL. Start it with `cd node-api && docker compose up --build`. The React frontend still targets the Python API by default, so the Node service is not yet the default full-stack path. The Node and Python services use separate databases.
+
+The Node service includes unit tests and a GitHub Actions workflow. PostgreSQL integration tests, authenticated financial workflows and comprehensive Playwright end-to-end tests remain future work.
