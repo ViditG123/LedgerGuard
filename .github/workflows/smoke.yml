@@ -1,0 +1,35 @@
+name: Ledger API smoke test
+on:
+  push:
+  pull_request:
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker compose -f node-api/docker-compose.yml up -d --build
+      - name: Verify Node and PostgreSQL transaction flow
+        run: |
+          python - <<'PY'
+          import json, time, urllib.request
+          base = "http://127.0.0.1:8001"
+          for attempt in range(60):
+              try:
+                  with urllib.request.urlopen(base + "/health", timeout=2) as response:
+                      if json.load(response)["status"] == "ok":
+                          break
+              except Exception:
+                  time.sleep(2)
+          else:
+              raise RuntimeError("LedgerGuard Node API did not start")
+          req = urllib.request.Request(base + "/transactions", data=json.dumps({"account":"smoke","amount":"100.00","memo":"test"}).encode(), headers={"Content-Type":"application/json"})
+          with urllib.request.urlopen(req, timeout=10) as response:
+              assert response.status == 201
+          req = urllib.request.Request(base + "/reconcile", data=json.dumps({"account":"smoke","expected_balance":"100.00"}).encode(), headers={"Content-Type":"application/json"})
+          with urllib.request.urlopen(req, timeout=10) as response:
+              result = json.load(response)
+          assert result["matched"], result
+          print("LedgerGuard Node/PostgreSQL smoke test passed")
+          PY
+      - if: always()
+        run: docker compose -f node-api/docker-compose.yml logs --no-color
