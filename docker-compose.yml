@@ -1,0 +1,11 @@
+services:
+  api:
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - ledgerguard_data:/data
+    environment:
+      LEDGERGUARD_DB: /data/ledgerguard.db
+volumes:
+  ledgerguard_data:
