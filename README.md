@@ -1,4 +1,4 @@
-# LedgerGuard — Transaction Reconciliation API (MVP)
+# LedgerGuard : Transaction Reconciliation API (MVP)
 
 A synthetic transaction ledger implemented with FastAPI and SQLite. Stores amounts in integer cents and supports account balance calculations and reconciliation.
 
